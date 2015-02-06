@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>XML Exercise</title>
+
+	<head>
+		<script src="loadxmldoc.js"></script>
+		<style type="text/css">
+			body {
+				font-size: 100%;
+			}
+			
+			#main-form {
+				display: flex;
+				position: relative;
+				margin-top: 300px;
+				width: 100%;
+				justify-content: center;
+			}
+			
+			table {
+				text-align: center;
+				margin: auto;
+			}
+			
+			table#t {
+				width: 80%;
+				margin: auto;
+				border-collapse: collapse;
+			}
+			
+			#t tr td {
+				border: 2px solid black;
+			}
+			
+			#t tr th {
+				border: 2px solid black;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="main-form">
+
+			<table cellpadding="10px">
+				<tr>
+					<td>
+						<b>Enter URL for Company List XML File</b>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input id="file" type="text" autofocus required pattern="[a-zA-Z0-9]{1,}(\.xml)+$" title="filename.xml">
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						<input id="btn" type="submit" value="Submit Query">
+
+					</td>
+				</tr>
+
+			</table>
+
+
+		</div>
+		<div id="main-table">
+			<table id="t">
+
+			</table>
+		</div>
+		<script type="text/javascript">
+			document.getElementById("btn").addEventListener("click", buildtable, false);
+
+			//laod a new xml file from local file.
+			function buildtable() {
+				alert("form without action will refresh current page!");
+				var filename = document.getElementById("file").value;
+
+				var xmlDoc = loadXMLDocErrFinal(filename);
+
+				//xmlDoc.documentElement is the root of xml file.
+				/*
+					each childnodes for a specific element will have elements child and text child.
+					so when we traversing nodes, we should always check the nodetype of each child.
+				*/
+				if (xmlDoc) {
+					var newt = document.getElementById("t");
+
+					var cap = document.createElement("caption");
+					var cnode = document.createTextNode(xmlDoc.documentElement.nodeName);
+					cap.appendChild(cnode);
+					cap.style.fontWeight = "bold";
+					newt.appendChild(cap);
+
+					/*var footb = xmlDoc.getElementsByTagName("book");
+					for(i = 0; i < footb.length; i++){
+						if(footb[i].nodeType == 1){
+							var newtr = document.createElement("tr");
+							//alert(footb[i].childNodes[1].nodeName);
+							var cols = footb[i].childNodes;
+							//alert(cols.length);
+							for(j = 0; j < cols.length; j++){
+								if(cols[j].nodeType == 1){
+									var newtd = document.createElement("td");
+									var node = document.createTextNode(cols[j].childNodes[0].nodeValue);
+									newtd.appendChild(node);
+									newtr.appendChild(newtd);
+									//alert(newtr.length);
+								}
+							}
+							newt.appendChild(newtr);
+						}
+					}*/
+
+					var footb = xmlDoc.getElementsByTagName("Row");
+
+					if (footb.length == 1) {
+						alert("empty XML file");
+					} else {
+						for (i = 0; i < footb.length; i++) {
+
+							if (footb[i].nodeType == 1) {
+								//alert(footb[i].nodeName);
+								var newtr = document.createElement("tr");
+								var footbnodelist = footb[i].childNodes;
+								//alert(footbnodelist.length);
+								for (j = 0; j < footbnodelist.length; j++) {
+									if (footbnodelist[j].nodeType == 1) {
+
+										var newline;
+										if (i == 0) {
+											var newline = document.createElement("th");
+										} else {
+											var newline = document.createElement("td");
+
+										}
+										var str = "";
+										if(footbnodelist[j].childNodes[0])
+											str = footbnodelist[j].childNodes[0].nodeValue;
+										
+										if (footbnodelist[j].nodeName == "HomePage" && str) {
+											var link = document.createElement("a");
+											link.setAttribute("href", str);
+											var node = document.createTextNode("link to company");
+											link.appendChild(node);
+											newline.appendChild(link);
+										} else if (footbnodelist[j].nodeName == "Logo" && str) {
+											var img = document.createElement("img");
+											img.setAttribute("src", str);
+											newline.appendChild(img);
+										} else {
+											var node = document.createTextNode(str);
+											newline.appendChild(node);
+										}
+										newtr.appendChild(newline);
+
+									}
+								}
+								newt.appendChild(newtr);
+							}
+						}
+
+					}
+				}
+
+			}
+		</script>
+	</body>
+</head>
+
+</html>
